@@ -7,5 +7,5 @@ This pulls data from Johns Hopkins CSSE and the New York Times and plots data fo
 3. matplotlib
 
 ## Instructions
-`./updateData`
-`./plotNytData.py`
+1. `./updateData`
+2. `./plotNytData.py`
