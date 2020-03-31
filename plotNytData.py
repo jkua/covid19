@@ -81,7 +81,7 @@ class NytData(object):
         return data[idx]
 
     def newCases(self, data):
-        return np.diff(data['cases'] - data['deaths'])
+        return np.diff(data['cases'])
 
 
 if __name__=='__main__':
