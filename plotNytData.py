@@ -105,47 +105,50 @@ if __name__=='__main__':
 
     fields = ['cases', 'deaths', 'new cases']
     fig, axes = plt.subplots(len(fields), sharex=True, figsize=(6, 10))
+    fig.suptitle('California (NYT)')
     for ax, field in zip(axes, fields):
         if field == 'new cases':
-            ax.plot(california['date'][1:], nytData.newCases(california), '.-', label='California')
-            ax.plot(bayArea['date'][1:], nytData.newCases(bayArea), '.-', label='Bay Area')
+            ax.plot(california['date'][1:], nytData.newCases(california), '.-', linewidth=3, label='California')
+            ax.plot(bayArea['date'][1:], nytData.newCases(bayArea), '.-', linewidth=3, label='Bay Area')
             for county in counties:
                 ax.plot(countyData[county]['date'][1:], nytData.newCases(countyData[county]), '.-', label=county)
         else:    
-            ax.plot(california['date'], california[field], label='California')
-            ax.plot(bayArea['date'], bayArea[field], label='Bay Area')
+            ax.plot(california['date'], california[field], linewidth=3, label='California')
+            ax.plot(bayArea['date'], bayArea[field], linewidth=3, label='Bay Area')
             for county in counties:
                 ax.plot(countyData[county]['date'], countyData[county][field], label=county)
             ax.set_ylim([10, None])
             ax.set_yscale('log')
-        ax.axvline(bayAreaSip, color='r')
-        ax.axvline(californiaSip, color='k')
+        ax.axvline(bayAreaSip, color='r', linewidth=1, linestyle='--')
+        ax.axvline(californiaSip, color='k', linewidth=1, linestyle='--')
+        ax.set_xlim([startDate, None])
         ax.legend()
         ax.set_title(field.title())
     fig.autofmt_xdate()
-    fig.tight_layout()
-
+    fig.subplots_adjust(left=0.1, bottom=0.07, right=0.94, top=0.93, wspace=None, hspace=0.15)
+    
     unitedStates = nytData.getStatesSum(startDate=startDate)
     states = ['California', 'New York', 'New Jersey', 'Washington']
     stateData = {state: nytData.getState(state, startDate) for state in states}
     fig, axes = plt.subplots(len(fields), sharex=True, figsize=(6, 10))
+    fig.suptitle('United States (NYT)')
     for ax, field in zip(axes, fields):
         if field == 'new cases':
-            ax.plot(unitedStates['date'][1:], nytData.newCases(unitedStates), 'r.-', label='United States')
+            ax.plot(unitedStates['date'][1:], nytData.newCases(unitedStates), 'r.-', linewidth=3, label='United States')
             for state in states:
                 ax.plot(stateData[state]['date'][1:], nytData.newCases(stateData[state]), '.-', label=state)
         else:
-            ax.plot(unitedStates['date'], unitedStates[field], 'r', label='United States')
+            ax.plot(unitedStates['date'], unitedStates[field], 'r', linewidth=3, label='United States')
             for state in states:
                 ax.plot(stateData[state]['date'], stateData[state][field], label=state)
             ax.set_ylim([10, None])
             ax.set_yscale('log')
-        ax.axvline(californiaSip, color='k')
+        ax.axvline(californiaSip, color='k', linewidth=1, linestyle='--')
+        ax.set_xlim([startDate, None])
         ax.legend()
         ax.set_title(field.title())
     fig.autofmt_xdate()
-    fig.tight_layout()
-
+    fig.subplots_adjust(left=0.1, bottom=0.07, right=0.94, top=0.93, wspace=None, hspace=0.15)
 
     plt.show()
 
