@@ -128,7 +128,7 @@ if __name__=='__main__':
     fig.subplots_adjust(left=0.1, bottom=0.07, right=0.94, top=0.93, wspace=None, hspace=0.15)
     
     unitedStates = nytData.getStatesSum(startDate=startDate)
-    states = ['California', 'New York', 'New Jersey', 'Washington']
+    states = ['California', 'New York', 'New Jersey', 'Washington', 'Florida', 'Louisiana', 'Michigan']
     stateData = {state: nytData.getState(state, startDate) for state in states}
     fig, axes = plt.subplots(len(fields), sharex=True, figsize=(6, 10))
     fig.suptitle('United States (NYT)')
