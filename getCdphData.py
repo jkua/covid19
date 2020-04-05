@@ -42,7 +42,10 @@ class CdphCovidData(object):
 
     def parseNewsRelease(self, url):
         response = requests.get(url)
-        soup = BeautifulSoup(response.text, 'html.parser')        
+        soup = BeautifulSoup(response.text, 'html.parser')
+
+        for match in soup.find_all('span'):
+            match.unwrap()    
         
         dateStrings = soup.find_all(string=re.compile('Date:'))
         assert len(dateStrings) == 1, 'Expect to find exactly one date string!'
@@ -97,7 +100,7 @@ class CdphCovidData(object):
     def findString(self, soup, regex):
         strings = soup.find_all(string=re.compile(regex))
         if strings:
-            strings = [unicodedata.normalize('NFKD', string) for string in strings]
+            strings = [unicodedata.normalize('NFKD', string.parent.text) for string in strings]
         return strings
 
     def getLeadingNumber(self, strings, regex):
