@@ -98,9 +98,11 @@ class CdphCovidData(object):
         self.printRecord(record)
 
     def findString(self, soup, regex):
+        regex = '[\s]+'.join(regex.split(' '))
         strings = soup.find_all(string=re.compile(regex))
         if strings:
             strings = [unicodedata.normalize('NFKD', string.parent.text) for string in strings]
+            strings = [' '.join(string.split()) for string in strings]
         return strings
 
     def getLeadingNumber(self, strings, regex):
