@@ -35,7 +35,7 @@ if __name__=='__main__':
     print(f'Cases per test received: {casesPerTest:.3f}')
     print('\n* the case fatality rate estimate uses all cases rather than closed cases due to recovered case counts not being available')
 
-    fig, axes = plt.subplots(3, sharex=True, figsize=(6, 10))
+    fig, axes = plt.subplots(4, sharex=True, figsize=(6, 10))
     fig.suptitle('California (CDPH)')
     for i, field in enumerate(['cases', 'deaths']):
         axes[i].plot(data['date'], data[field])
@@ -50,6 +50,12 @@ if __name__=='__main__':
     axes[2].axvline(californiaSip, color='k', linewidth=1, linestyle='--')
     axes[2].set_ylim([0, None])
     axes[2].set_title('New Cases')
+    
+    axes[3].plot(data['date'][1:], np.diff(data['deaths']))
+    axes[3].axvline(bayAreaSip, color='r', linewidth=1, linestyle='--')
+    axes[3].axvline(californiaSip, color='k', linewidth=1, linestyle='--')
+    axes[3].set_ylim([0, None])
+    axes[3].set_title('Daily Deaths')
     fig.autofmt_xdate()
     fig.subplots_adjust(left=0.1, bottom=0.07, right=0.94, top=0.93, wspace=None, hspace=0.15)
 

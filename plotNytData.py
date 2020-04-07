@@ -83,6 +83,9 @@ class NytData(object):
     def newCases(self, data):
         return np.diff(data['cases'])
 
+    def dailyDeaths(self, data):
+        return np.diff(data['deaths'])
+
 
 if __name__=='__main__':
     import argparse
@@ -103,7 +106,7 @@ if __name__=='__main__':
     bayArea = nytData.getCountiesSum(counties, 'California', startDate)
     countyData = {county: nytData.getCounty(county, 'California', startDate) for county in counties}
 
-    fields = ['cases', 'deaths', 'new cases']
+    fields = ['cases', 'deaths', 'new cases', 'daily deaths']
     fig, axes = plt.subplots(len(fields), sharex=True, figsize=(6, 10))
     fig.suptitle('California (NYT)')
     for ax, field in zip(axes, fields):
@@ -112,6 +115,11 @@ if __name__=='__main__':
             ax.plot(bayArea['date'][1:], nytData.newCases(bayArea), '.-', linewidth=3, label='Bay Area')
             for county in counties:
                 ax.plot(countyData[county]['date'][1:], nytData.newCases(countyData[county]), '.-', label=county)
+        elif field == 'daily deaths':
+            ax.plot(california['date'][1:], nytData.dailyDeaths(california), '.-', linewidth=3, label='California')
+            ax.plot(bayArea['date'][1:], nytData.dailyDeaths(bayArea), '.-', linewidth=3, label='Bay Area')
+            for county in counties:
+                ax.plot(countyData[county]['date'][1:], nytData.dailyDeaths(countyData[county]), '.-', label=county)
         else:    
             ax.plot(california['date'], california[field], linewidth=3, label='California')
             ax.plot(bayArea['date'], bayArea[field], linewidth=3, label='Bay Area')
@@ -137,6 +145,10 @@ if __name__=='__main__':
             ax.plot(unitedStates['date'][1:], nytData.newCases(unitedStates), 'r.-', linewidth=3, label='United States')
             for state in states:
                 ax.plot(stateData[state]['date'][1:], nytData.newCases(stateData[state]), '.-', label=state)
+        elif field == 'daily deaths':
+            ax.plot(unitedStates['date'][1:], nytData.dailyDeaths(unitedStates), 'r.-', linewidth=3, label='United States')
+            for state in states:
+                ax.plot(stateData[state]['date'][1:], nytData.dailyDeaths(stateData[state]), '.-', label=state)
         else:
             ax.plot(unitedStates['date'], unitedStates[field], 'r', linewidth=3, label='United States')
             for state in states:
