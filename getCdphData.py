@@ -81,8 +81,8 @@ class CdphCovidData(object):
             import pdb; pdb.set_trace()
             raise Exception('Failed to find the number of cases!')
 
-        # if deaths is None:
-        #     print('\n****** Failed to find the number of deaths!')
+        if record['deaths'] is None:
+            print('\n****** WARNING - failed to find the number of deaths!')
         #     import pdb; pdb.set_trace()
         #     raise Exception('Failed to find the number of deaths!')
 
@@ -101,7 +101,20 @@ class CdphCovidData(object):
         regex = '[\s]+'.join(regex.split(' '))
         strings = soup.find_all(string=re.compile(regex))
         if strings:
-            strings = [unicodedata.normalize('NFKD', string.parent.text) for string in strings]
+            newStrings = []
+            for string in strings:
+                substrings = []
+                for child in string.parent.children:
+                    try:
+                        if child.string is not None:
+                            substring = child.string.strip()
+                            if substring:
+                                substrings.append(substring)
+                    except:
+                        pass
+                newStrings.append(' '.join(substrings))
+            strings = newStrings
+            strings = [unicodedata.normalize('NFKD', string) for string in strings]
             strings = [' '.join(string.split()) for string in strings]
         return strings
 
