@@ -161,7 +161,7 @@ if __name__=='__main__':
                 ax.plot(countyData[county]['date'][1:], nytData.dailyDeaths(countyData[county]), '.-', label=county)
         else:    
             ax.plot(california['date'], california[field], linewidth=3, label='California')
-            ax.plot(losAngeles['date'], losAngeles[field], '.-', linewidth=3, label='Los Angeles')
+            ax.plot(losAngeles['date'], losAngeles[field], linewidth=3, label='Los Angeles')
             ax.plot(bayArea['date'], bayArea[field], linewidth=3, label='Bay Area')
             for county in counties:
                 ax.plot(countyData[county]['date'], countyData[county][field], label=county)
