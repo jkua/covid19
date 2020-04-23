@@ -7,6 +7,8 @@ import datetime
 import numpy as np
 import matplotlib.pyplot as plt
 
+from plotCdphData import movingAverage
+
 
 def dateParser(d_bytes):
     s = d_bytes.decode('utf-8')
@@ -91,6 +93,7 @@ if __name__=='__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataPath', default='./data')
+    parser.add_argument('--plotsPath', default='./plots')
     args = parser.parse_args()
 
     nytData = NytData(os.path.join(args.dataPath, 'nytimes'))
@@ -102,51 +105,27 @@ if __name__=='__main__':
     californiaSip = datetime.datetime(2020, 3, 20)
 
     california = nytData.getState('California', startDate)
-    counties = ['Alameda', 'Contra Costa', 'Marin', 'Napa', 'San Francisco', 'San Mateo', 'Santa Clara', 'Solano', 'Sonoma']
+    # counties = ['Alameda', 'Contra Costa', 'Marin', 'Napa', 'San Francisco', 'San Mateo', 'Santa Clara', 'Solano', 'Sonoma']
+    counties = ['Alameda', 'Contra Costa', 'San Francisco', 'San Mateo', 'Santa Clara']
     bayArea = nytData.getCountiesSum(counties, 'California', startDate)
+    losAngeles = nytData.getCounty('Los Angeles', 'California', startDate)
     countyData = {county: nytData.getCounty(county, 'California', startDate) for county in counties}
 
-    fields = ['cases', 'deaths', 'new cases', 'daily deaths']
-    fig, axes = plt.subplots(len(fields), sharex=True, figsize=(6, 10))
-    fig.suptitle('California (NYT)')
-    for ax, field in zip(axes, fields):
-        if field == 'new cases':
-            ax.plot(california['date'][1:], nytData.newCases(california), '.-', linewidth=3, label='California')
-            ax.plot(bayArea['date'][1:], nytData.newCases(bayArea), '.-', linewidth=3, label='Bay Area')
-            for county in counties:
-                ax.plot(countyData[county]['date'][1:], nytData.newCases(countyData[county]), '.-', label=county)
-        elif field == 'daily deaths':
-            ax.plot(california['date'][1:], nytData.dailyDeaths(california), '.-', linewidth=3, label='California')
-            ax.plot(bayArea['date'][1:], nytData.dailyDeaths(bayArea), '.-', linewidth=3, label='Bay Area')
-            for county in counties:
-                ax.plot(countyData[county]['date'][1:], nytData.dailyDeaths(countyData[county]), '.-', label=county)
-        else:    
-            ax.plot(california['date'], california[field], linewidth=3, label='California')
-            ax.plot(bayArea['date'], bayArea[field], linewidth=3, label='Bay Area')
-            for county in counties:
-                ax.plot(countyData[county]['date'], countyData[county][field], label=county)
-            ax.set_ylim([10, None])
-            ax.set_yscale('log')
-        ax.axvline(bayAreaSip, color='r', linewidth=1, linestyle='--')
-        ax.axvline(californiaSip, color='k', linewidth=1, linestyle='--')
-        ax.set_xlim([startDate, None])
-        ax.legend()
-        ax.set_title(field.title())
-    fig.autofmt_xdate()
-    fig.subplots_adjust(left=0.1, bottom=0.07, right=0.94, top=0.93, wspace=None, hspace=0.15)
-    
+    fields = ['cases', 'deaths', 'new cases', 'daily deaths']   
     unitedStates = nytData.getStatesSum(startDate=startDate)
-    states = ['California', 'New York', 'New Jersey', 'Washington', 'Florida', 'Louisiana', 'Michigan']
+    states = ['California', 'New York', 'New Jersey', 'Washington', 'Florida', 'Louisiana', 'Michigan', 'Georgia']
     stateData = {state: nytData.getState(state, startDate) for state in states}
     fig, axes = plt.subplots(len(fields), sharex=True, figsize=(6, 10))
     fig.suptitle('United States (NYT)')
     for ax, field in zip(axes, fields):
         if field == 'new cases':
             ax.plot(unitedStates['date'][1:], nytData.newCases(unitedStates), 'r.-', linewidth=3, label='United States')
+            ax.plot(unitedStates['date'][4:-3], movingAverage(nytData.newCases(unitedStates)), color='k', linestyle=':')
             for state in states:
                 ax.plot(stateData[state]['date'][1:], nytData.newCases(stateData[state]), '.-', label=state)
         elif field == 'daily deaths':
             ax.plot(unitedStates['date'][1:], nytData.dailyDeaths(unitedStates), 'r.-', linewidth=3, label='United States')
+            ax.plot(unitedStates['date'][4:-3], movingAverage(nytData.dailyDeaths(unitedStates)), color='k', linestyle=':')
             for state in states:
                 ax.plot(stateData[state]['date'][1:], nytData.dailyDeaths(stateData[state]), '.-', label=state)
         else:
@@ -161,6 +140,41 @@ if __name__=='__main__':
         ax.set_title(field.title())
     fig.autofmt_xdate()
     fig.subplots_adjust(left=0.1, bottom=0.07, right=0.94, top=0.93, wspace=None, hspace=0.15)
+    fig.savefig(os.path.join(args.plotsPath, 'nyt_us_cases.png'), dpi=100)
+
+    fig, axes = plt.subplots(len(fields), sharex=True, figsize=(6, 10))
+    fig.suptitle('California (NYT)')
+    for ax, field in zip(axes, fields):
+        if field == 'new cases':
+            ax.plot(california['date'][1:], nytData.newCases(california), '.-', linewidth=3, label='California')
+            ax.plot(california['date'][4:-3], movingAverage(nytData.newCases(california)), color='k', linestyle=':')
+            ax.plot(losAngeles['date'][1:], nytData.newCases(losAngeles), '.-', linewidth=3, label='Los Angeles')
+            ax.plot(bayArea['date'][1:], nytData.newCases(bayArea), '.-', linewidth=3, label='Bay Area')
+            for county in counties:
+                ax.plot(countyData[county]['date'][1:], nytData.newCases(countyData[county]), '.-', label=county)
+        elif field == 'daily deaths':
+            ax.plot(california['date'][1:], nytData.dailyDeaths(california), '.-', linewidth=3, label='California')
+            ax.plot(california['date'][4:-3], movingAverage(nytData.dailyDeaths(california)), color='k', linestyle=':')
+            ax.plot(losAngeles['date'][1:], nytData.dailyDeaths(losAngeles), '.-', linewidth=3, label='Los Angeles')
+            ax.plot(bayArea['date'][1:], nytData.dailyDeaths(bayArea), '.-', linewidth=3, label='Bay Area')
+            for county in counties:
+                ax.plot(countyData[county]['date'][1:], nytData.dailyDeaths(countyData[county]), '.-', label=county)
+        else:    
+            ax.plot(california['date'], california[field], linewidth=3, label='California')
+            ax.plot(losAngeles['date'], losAngeles[field], '.-', linewidth=3, label='Los Angeles')
+            ax.plot(bayArea['date'], bayArea[field], linewidth=3, label='Bay Area')
+            for county in counties:
+                ax.plot(countyData[county]['date'], countyData[county][field], label=county)
+            ax.set_ylim([10, None])
+            ax.set_yscale('log')
+        ax.axvline(bayAreaSip, color='r', linewidth=1, linestyle='--')
+        ax.axvline(californiaSip, color='k', linewidth=1, linestyle='--')
+        ax.set_xlim([startDate, None])
+        ax.legend()
+        ax.set_title(field.title())
+    fig.autofmt_xdate()
+    fig.subplots_adjust(left=0.1, bottom=0.07, right=0.94, top=0.93, wspace=None, hspace=0.15)
+    fig.savefig(os.path.join(args.plotsPath, 'nyt_ca_cases.png'), dpi=100)
 
     plt.show()
 

@@ -8,10 +8,27 @@ import matplotlib.pyplot as plt
 
 from getCdphData import CdphCovidData
 
+def movingAverage(a, n=7) :
+    ret = np.cumsum(a, dtype=float)
+    ret[n:] = ret[n:] - ret[:-n]
+    return ret[n - 1:] / n
+
+def interpolateMissingData(data):
+    idx = np.where(np.isnan(data))[0]
+    for i in idx:
+        if (i > 0) and (i < (len(data)-1)):
+            data[i] = (data[i-1] + data[i+1])/2
+        elif i > 0:
+            data[i] = data[i-1]
+        elif i < (len(data)-1):
+            data[i] = data[i+1]
+
+
 if __name__=='__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataPath', default='./data')
+    parser.add_argument('--plotsPath', default='./plots')
     args = parser.parse_args()
 
     cdphData = CdphCovidData()
@@ -23,6 +40,9 @@ if __name__=='__main__':
     data = cdphData.dataToNumpy()
     newCases = np.diff(data['cases'])
     newTestsReceived = np.diff(data['testsReceived'])
+
+    interpolateMissingData(data['cases'])
+    interpolateMissingData(data['deaths'])
 
     newestRecord = cdphData.getNewestRecord()
     casesPerTest = newestRecord['cases']/newestRecord['testsReceived']
@@ -46,20 +66,23 @@ if __name__=='__main__':
         axes[i].set_yscale('log')
 
     axes[2].plot(data['date'][1:], np.diff(data['cases']))
+    axes[2].plot(data['date'][4:-3], movingAverage(np.diff(data['cases'])), color='k', linestyle=':')
     axes[2].axvline(bayAreaSip, color='r', linewidth=1, linestyle='--')
     axes[2].axvline(californiaSip, color='k', linewidth=1, linestyle='--')
     axes[2].set_ylim([0, None])
     axes[2].set_title('New Cases')
     
     axes[3].plot(data['date'][1:], np.diff(data['deaths']))
+    axes[3].plot(data['date'][4:-3], movingAverage(np.diff(data['deaths'])), color='k', linestyle=':')
     axes[3].axvline(bayAreaSip, color='r', linewidth=1, linestyle='--')
     axes[3].axvline(californiaSip, color='k', linewidth=1, linestyle='--')
     axes[3].set_ylim([0, None])
     axes[3].set_title('Daily Deaths')
     fig.autofmt_xdate()
     fig.subplots_adjust(left=0.1, bottom=0.07, right=0.94, top=0.93, wspace=None, hspace=0.15)
+    fig.savefig(os.path.join(args.plotsPath, 'cdph_ca_cases.png'), dpi=100)
 
-    fig, axes = plt.subplots(3, sharex=True, figsize=(6, 10))
+    fig, axes = plt.subplots(2, sharex=True, figsize=(6, 8))
     fig.suptitle('California (CDPH)')
     for i, field in enumerate(['testsConducted', 'testsReceived', 'testsPending']):
         axes[0].plot(data['date'], data[field], label=field.replace('tests', ''))
@@ -69,22 +92,24 @@ if __name__=='__main__':
     axes[0].legend()
     axes[0].set_title('Tests')
 
-    axes[1].plot(data['date'], data['cases'])
-    axes[1].set_title('Cases')
+    # axes[1].plot(data['date'], data['cases'])
+    # axes[1].set_title('Cases')
+    # axes[1].axvline(bayAreaSip, color='r', linewidth=1, linestyle='--')
+    # axes[1].axvline(californiaSip, color='k', linewidth=1, linestyle='--')
+    # axes[1].set_ylim([10, None])
+    # axes[1].set_yscale('log')
+
+    axes[1].plot(data['date'][1:], np.diff(data['cases']), label='New Cases')
+    axes[1].plot(data['date'][1:], np.diff(data['testsReceived']), label='New Tests Rcvd')
+    axes[1].plot(data['date'][14:-3], movingAverage(np.diff(data['testsReceived'][10:])), color='k', linestyle=':')
+    axes[1].legend()
     axes[1].axvline(bayAreaSip, color='r', linewidth=1, linestyle='--')
     axes[1].axvline(californiaSip, color='k', linewidth=1, linestyle='--')
-    axes[1].set_ylim([10, None])
-    axes[1].set_yscale('log')
-
-    axes[2].plot(data['date'][1:], np.diff(data['cases']), label='New Cases')
-    axes[2].plot(data['date'][1:], np.diff(data['testsReceived']), label='New Tests Rcvd')
-    axes[2].legend()
-    axes[2].axvline(bayAreaSip, color='r', linewidth=1, linestyle='--')
-    axes[2].axvline(californiaSip, color='k', linewidth=1, linestyle='--')
-    axes[2].set_ylim([0, None])
-    axes[2].set_title('New Cases vs New Tests')
+    axes[1].set_ylim([0, np.max(movingAverage(np.diff(data['testsReceived'][10:])))*1.1])
+    axes[1].set_title('New Cases vs New Tests')
     fig.autofmt_xdate()
-    fig.subplots_adjust(left=0.1, bottom=0.07, right=0.94, top=0.93, wspace=None, hspace=0.15)
+    fig.subplots_adjust(left=0.13, bottom=0.10, right=0.94, top=0.91, wspace=None, hspace=0.15)
+    fig.savefig(os.path.join(args.plotsPath, 'cdph_ca_tests.png'), dpi=100)
 
     plt.show()
 
