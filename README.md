@@ -4,6 +4,9 @@ This pulls data from Johns Hopkins CSSE and the New York Times and plots data fo
 It also includes a scraper for the California Department of Public Health (CDPH) news releases to get the daily publication of case data. The file `data/califData.csv` is a periodically updated snapshot of that data.
 
 ## Current plots
+* Black dotted lines are a 7-day moving average
+* Vertical black dashed line is the date of the CA shelter in place order
+* Vertical red dashed line is the date of the SF Bay Area shelter in place order
 ![NYT US Cases](https://github.com/jkua/covid19/raw/master/plots/nyt_us_cases.png)
 ![NYT CA Cases](https://github.com/jkua/covid19/raw/master/plots/nyt_ca_cases.png)
 ![CDPH CA Cases](https://github.com/jkua/covid19/raw/master/plots/cdph_ca_cases.png)
