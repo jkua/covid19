@@ -7,7 +7,7 @@ import datetime
 import numpy as np
 import matplotlib.pyplot as plt
 
-from plotCdphData import movingAverage
+from plotCdphData import movingAverage, savePlot
 
 
 def dateParser(d_bytes):
@@ -94,6 +94,7 @@ if __name__=='__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataPath', default='./data')
     parser.add_argument('--plotsPath', default='./plots')
+    parser.add_argument('--noPlot', action='store_true')
     args = parser.parse_args()
 
     nytData = NytData(os.path.join(args.dataPath, 'nytimes'))
@@ -140,7 +141,7 @@ if __name__=='__main__':
         ax.set_title(field.title())
     fig.autofmt_xdate()
     fig.subplots_adjust(left=0.1, bottom=0.07, right=0.94, top=0.93, wspace=None, hspace=0.15)
-    fig.savefig(os.path.join(args.plotsPath, 'nyt_us_cases.png'), dpi=100)
+    savePlot(fig, args.plotsPath, 'nyt_us_cases.png')
 
     fig, axes = plt.subplots(len(fields), sharex=True, figsize=(6, 10))
     fig.suptitle('California (NYT)')
@@ -174,8 +175,9 @@ if __name__=='__main__':
         ax.set_title(field.title())
     fig.autofmt_xdate()
     fig.subplots_adjust(left=0.1, bottom=0.07, right=0.94, top=0.93, wspace=None, hspace=0.15)
-    fig.savefig(os.path.join(args.plotsPath, 'nyt_ca_cases.png'), dpi=100)
+    savePlot(fig, args.plotsPath, 'nyt_ca_cases.png')
 
-    plt.show()
+    if not args.noPlot:
+        plt.show()
 
 

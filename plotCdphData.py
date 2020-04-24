@@ -23,12 +23,22 @@ def interpolateMissingData(data):
         elif i < (len(data)-1):
             data[i] = data[i+1]
 
+def savePlot(fig, path, filename, dpi=100):
+    filename = os.path.join(path, filename)
+    print(f'\nSaving plot to {filename}')
+    fig.savefig(filename, dpi=dpi)
+
+def convertNumpyDatetimeToDatetime(dt, utcOffset=-8):
+    timestamp = (dt-np.datetime64('1970-01-01T00:00:00')-utcOffset*3600*1000000)/np.timedelta64(1, 's')
+    return datetime.datetime.fromtimestamp(timestamp)
+
 
 if __name__=='__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataPath', default='./data')
     parser.add_argument('--plotsPath', default='./plots')
+    parser.add_argument('--noPlot', action='store_true')
     args = parser.parse_args()
 
     cdphData = CdphCovidData()
@@ -36,6 +46,7 @@ if __name__=='__main__':
     
     bayAreaSip = datetime.datetime(2020, 3, 17)
     californiaSip = datetime.datetime(2020, 3, 20)
+    switchFromIndividualTestsToAllTests = datetime.datetime(2020, 4, 22)
 
     data = cdphData.dataToNumpy()
     newCases = np.diff(data['cases'])
@@ -80,7 +91,7 @@ if __name__=='__main__':
     axes[3].set_title('Daily Deaths')
     fig.autofmt_xdate()
     fig.subplots_adjust(left=0.1, bottom=0.07, right=0.94, top=0.93, wspace=None, hspace=0.15)
-    fig.savefig(os.path.join(args.plotsPath, 'cdph_ca_cases.png'), dpi=100)
+    savePlot(fig, args.plotsPath, 'cdph_ca_cases.png')
 
     fig, axes = plt.subplots(2, sharex=True, figsize=(6, 8))
     fig.suptitle('California (CDPH)')
@@ -88,6 +99,8 @@ if __name__=='__main__':
         axes[0].plot(data['date'], data[field], label=field.replace('tests', ''))
     axes[0].axvline(bayAreaSip, color='r', linewidth=1, linestyle='--')
     axes[0].axvline(californiaSip, color='k', linewidth=1, linestyle='--')
+    axes[0].axvspan(convertNumpyDatetimeToDatetime(data['date'][0]), switchFromIndividualTestsToAllTests, color='k', linewidth=0, alpha=0.1)
+    axes[0].set_xlim([convertNumpyDatetimeToDatetime(data['date'][0]), None])
     axes[0].set_ylim([0, None])
     axes[0].legend()
     axes[0].set_title('Tests')
@@ -105,12 +118,15 @@ if __name__=='__main__':
     axes[1].legend()
     axes[1].axvline(bayAreaSip, color='r', linewidth=1, linestyle='--')
     axes[1].axvline(californiaSip, color='k', linewidth=1, linestyle='--')
+    axes[1].axvspan(convertNumpyDatetimeToDatetime(data['date'][1]), switchFromIndividualTestsToAllTests, color='k', linewidth=0, alpha=0.1)
+    axes[1].set_xlim([convertNumpyDatetimeToDatetime(data['date'][1]), None])
     axes[1].set_ylim([0, np.max(movingAverage(np.diff(data['testsReceived'][10:])))*1.1])
     axes[1].set_title('New Cases vs New Tests')
     fig.autofmt_xdate()
     fig.subplots_adjust(left=0.13, bottom=0.10, right=0.94, top=0.91, wspace=None, hspace=0.15)
-    fig.savefig(os.path.join(args.plotsPath, 'cdph_ca_tests.png'), dpi=100)
+    savePlot(fig, args.plotsPath, 'cdph_ca_tests.png')
 
-    plt.show()
+    if not args.noPlot:
+        plt.show()
 
     

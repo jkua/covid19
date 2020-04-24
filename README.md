@@ -10,6 +10,8 @@ It also includes a scraper for the California Department of Public Health (CDPH)
 ![NYT US Cases](https://github.com/jkua/covid19/raw/master/plots/nyt_us_cases.png)
 ![NYT CA Cases](https://github.com/jkua/covid19/raw/master/plots/nyt_ca_cases.png)
 ![CDPH CA Cases](https://github.com/jkua/covid19/raw/master/plots/cdph_ca_cases.png)
+
+* Grey area: before April 23rd, the CDPH reported tested persons. On April 23 and after, each individual test, regardless of the number per person, is reported. See [this release](https://www.cdph.ca.gov/Programs/OPA/Pages/NR20-062.aspx).
 ![CDPH CA Tests](https://github.com/jkua/covid19/raw/master/plots/cdph_ca_tests.png)
 
 ## Requirements

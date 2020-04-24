@@ -89,9 +89,15 @@ class CdphCovidData(object):
         strings = self.findString(soup, 'tests had been conducted')
         record['testsConducted'] = self.getLeadingNumber(strings, '[0-9,+*]+ tests had been conducted')
 
+        # On 2020-04-23, the CDPH switched from reporting individual persons who have been tested
+        # to reporting each test conducted. See https://www.cdph.ca.gov/Programs/OPA/Pages/NR20-062.aspx 
         strings = self.findString(soup, 'results have been received')
-        record['testsReceived'] = self.getLeadingNumber(strings, '[0-9,+*]+ results have been received')
-        record['testsPending'] = self.getLeadingNumber(strings, '[0-9,+*]+ are pending')
+        if releaseDate < datetime.datetime(2020, 4, 23):
+            record['testsReceived'] = self.getLeadingNumber(strings, '[0-9,+*]+ results have been received')
+            record['testsPending'] = self.getLeadingNumber(strings, '[0-9,+*]+ are pending')
+        elif releaseDate == datetime.datetime(2020, 4, 23):
+            record['testsReceived'] = record['testsConducted']
+            record['testsPending'] = 0
 
         self.data[url] = record
 
@@ -103,16 +109,17 @@ class CdphCovidData(object):
         if strings:
             newStrings = []
             for string in strings:
-                substrings = []
+                output = ''
                 for child in string.parent.children:
                     try:
                         if child.string is not None:
-                            substring = child.string.strip()
-                            if substring:
-                                substrings.append(substring)
+                            output += child.string
+                        else:
+                            if child.name == 'br':
+                                output += ' '
                     except:
                         pass
-                newStrings.append(' '.join(substrings))
+                newStrings.append(output)
             strings = newStrings
             strings = [unicodedata.normalize('NFKD', string) for string in strings]
             strings = [' '.join(string.split()) for string in strings]
