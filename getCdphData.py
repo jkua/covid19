@@ -86,8 +86,8 @@ class CdphCovidData(object):
         #     import pdb; pdb.set_trace()
         #     raise Exception('Failed to find the number of deaths!')
 
-        strings = self.findString(soup, 'tests had been conducted')
-        record['testsConducted'] = self.getLeadingNumber(strings, '[0-9,+*]+ tests had been conducted')
+        strings = self.findString(soup, 'tests (had|have) been conducted')
+        record['testsConducted'] = self.getLeadingNumber(strings, '[0-9,+*]+ tests (had|have) been conducted')
 
         # On 2020-04-23, the CDPH switched from reporting individual persons who have been tested
         # to reporting each test conducted. See https://www.cdph.ca.gov/Programs/OPA/Pages/NR20-062.aspx 
@@ -95,7 +95,7 @@ class CdphCovidData(object):
         if releaseDate < datetime.datetime(2020, 4, 23):
             record['testsReceived'] = self.getLeadingNumber(strings, '[0-9,+*]+ results have been received')
             record['testsPending'] = self.getLeadingNumber(strings, '[0-9,+*]+ are pending')
-        elif releaseDate == datetime.datetime(2020, 4, 23):
+        elif releaseDate >= datetime.datetime(2020, 4, 23):
             record['testsReceived'] = record['testsConducted']
             record['testsPending'] = 0
 
