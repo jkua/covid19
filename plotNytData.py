@@ -116,7 +116,7 @@ if __name__=='__main__':
     unitedStates = nytData.getStatesSum(startDate=startDate)
     states = ['California', 'New York', 'New Jersey', 'Washington', 'Florida', 'Louisiana', 'Michigan', 'Georgia']
     stateData = {state: nytData.getState(state, startDate) for state in states}
-    fig, axes = plt.subplots(len(fields), sharex=True, figsize=(6, 10))
+    fig, axes = plt.subplots(len(fields), sharex=True, figsize=(7, 10))
     fig.suptitle('United States (NYT)')
     for ax, field in zip(axes, fields):
         if field == 'new cases':
@@ -137,13 +137,13 @@ if __name__=='__main__':
             ax.set_yscale('log')
         ax.axvline(californiaSip, color='k', linewidth=1, linestyle='--')
         ax.set_xlim([startDate, None])
-        ax.legend()
+        ax.legend(bbox_to_anchor=(1.04,1), loc="upper left")
         ax.set_title(field.title())
     fig.autofmt_xdate()
-    fig.subplots_adjust(left=0.1, bottom=0.07, right=0.94, top=0.93, wspace=None, hspace=0.15)
+    fig.subplots_adjust(left=0.1, bottom=0.07, right=0.72, top=0.93, wspace=None, hspace=0.15)
     savePlot(fig, args.plotsPath, 'nyt_us_cases.png')
 
-    fig, axes = plt.subplots(len(fields), sharex=True, figsize=(6, 10))
+    fig, axes = plt.subplots(len(fields), sharex=True, figsize=(7, 10))
     fig.suptitle('California (NYT)')
     for ax, field in zip(axes, fields):
         if field == 'new cases':
@@ -171,10 +171,10 @@ if __name__=='__main__':
         ax.axvline(bayAreaSip, color='r', linewidth=1, linestyle='--')
         ax.axvline(californiaSip, color='k', linewidth=1, linestyle='--')
         ax.set_xlim([startDate, None])
-        ax.legend()
+        ax.legend(bbox_to_anchor=(1.04,1), loc="upper left")
         ax.set_title(field.title())
     fig.autofmt_xdate()
-    fig.subplots_adjust(left=0.1, bottom=0.07, right=0.94, top=0.93, wspace=None, hspace=0.15)
+    fig.subplots_adjust(left=0.1, bottom=0.07, right=0.72, top=0.93, wspace=None, hspace=0.15)
     savePlot(fig, args.plotsPath, 'nyt_ca_cases.png')
 
     if not args.noPlot:

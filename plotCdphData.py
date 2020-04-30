@@ -102,7 +102,7 @@ if __name__=='__main__':
     axes[0].axvspan(convertNumpyDatetimeToDatetime(data['date'][0]), switchFromIndividualTestsToAllTests, color='k', linewidth=0, alpha=0.1)
     axes[0].set_xlim([convertNumpyDatetimeToDatetime(data['date'][0]), None])
     axes[0].set_ylim([0, None])
-    axes[0].legend()
+    axes[0].legend(loc='upper left')
     axes[0].set_title('Tests')
 
     # axes[1].plot(data['date'], data['cases'])
@@ -115,7 +115,7 @@ if __name__=='__main__':
     axes[1].plot(data['date'][1:], np.diff(data['cases']), label='New Cases')
     axes[1].plot(data['date'][1:], np.diff(data['testsReceived']), label='New Tests Rcvd')
     axes[1].plot(data['date'][14:-3], movingAverage(np.diff(data['testsReceived'][10:])), color='k', linestyle=':')
-    axes[1].legend()
+    axes[1].legend(loc='upper left')
     axes[1].axvline(bayAreaSip, color='r', linewidth=1, linestyle='--')
     axes[1].axvline(californiaSip, color='k', linewidth=1, linestyle='--')
     axes[1].axvspan(convertNumpyDatetimeToDatetime(data['date'][1]), switchFromIndividualTestsToAllTests, color='k', linewidth=0, alpha=0.1)
