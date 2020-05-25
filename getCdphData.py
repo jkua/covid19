@@ -87,15 +87,22 @@ class CdphCovidData(object):
         #     raise Exception('Failed to find the number of deaths!')
 
         strings = self.findString(soup, 'tests (had|have) been conducted')
-        record['testsConducted'] = self.getLeadingNumber(strings, '[0-9,+*]+ tests (had|have) been conducted')
+        if strings:
+            record['testsConducted'] = self.getLeadingNumber(strings, '[0-9,+*]+ tests (had|have) been conducted')
 
-        # On 2020-04-23, the CDPH switched from reporting individual persons who have been tested
-        # to reporting each test conducted. See https://www.cdph.ca.gov/Programs/OPA/Pages/NR20-062.aspx 
-        strings = self.findString(soup, 'results have been received')
-        if releaseDate < datetime.datetime(2020, 4, 23):
-            record['testsReceived'] = self.getLeadingNumber(strings, '[0-9,+*]+ results have been received')
-            record['testsPending'] = self.getLeadingNumber(strings, '[0-9,+*]+ are pending')
-        elif releaseDate >= datetime.datetime(2020, 4, 23):
+            # On 2020-04-23, the CDPH switched from reporting individual persons who have been tested
+            # to reporting each test conducted. See https://www.cdph.ca.gov/Programs/OPA/Pages/NR20-062.aspx 
+            strings = self.findString(soup, 'results have been received')
+            if releaseDate < datetime.datetime(2020, 4, 23):
+                record['testsReceived'] = self.getLeadingNumber(strings, '[0-9,+*]+ results have been received')
+                record['testsPending'] = self.getLeadingNumber(strings, '[0-9,+*]+ are pending')
+            elif releaseDate >= datetime.datetime(2020, 4, 23):
+                record['testsReceived'] = record['testsConducted']
+                record['testsPending'] = 0
+        else:
+            # On 2020-05-17, the CDPH changed the wording of their news releases for test results
+            strings = self.findString(soup, '[0-9,+*]+ tests conducted in California')
+            record['testsConducted'] = self.getLeadingNumber(strings, '[0-9,+*]+ tests conducted in California')
             record['testsReceived'] = record['testsConducted']
             record['testsPending'] = 0
 
