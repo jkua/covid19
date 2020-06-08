@@ -51,7 +51,12 @@ class CdphCovidData(object):
         assert len(dateStrings) == 1, 'Expect to find exactly one date string!'
         dateString = unicodedata.normalize('NFKD', dateStrings[0])
         dateString = dateStrings[0].split(':')[1].strip()
-        releaseDate = datetime.datetime.strptime(dateString, '%B %d, %Y')
+        dateString = dateString.replace(',', '')
+        dateString = dateString.replace('\xa0', ' ')
+        tokens = dateString.split(' ')
+        tokens = [token.strip() for token in tokens]
+        dateString = ' '.join(tokens)
+        releaseDate = datetime.datetime.strptime(dateString, '%B %d %Y')
         print(releaseDate)
 
         releaseStrings = soup.find_all(string=re.compile('Number:'))
